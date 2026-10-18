@@ -31,6 +31,14 @@ repository provides neither traffic generation nor replay commands. Offline dete
 validation cannot establish on-wire mitigation. Unexpected MAP on the native A/GSUP
 leg is a topology/decode investigation, not evidence that GSUP is MAP.
 
+## Offline implementation
+
+See [the offline detector contract](offline-detector.md) and
+[Kali walkthrough](kali-next-steps.md). The standard-library detector evaluates
+normalized records for four rules and generates an input/configuration hash manifest.
+Its synthetic tests do not validate the radio/core network or enforcement. MAP-02,
+a PCAP normalizer and external MAP enforcement remain pending.
+
 ## Capture and analysis
 
 `bash scripts/capture.sh baseline 60` captures only loopback traffic for the specified

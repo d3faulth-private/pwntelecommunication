@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "approved_peers": [
+    {
+      "id": "lab-bsc",
+      "ip": "127.0.0.4",
+      "source_port": 2905,
+      "point_code": "1.1.1",
+      "routing_context": 1
+    },
+    {
+      "id": "lab-msc",
+      "ip": "127.0.0.3",
+      "source_port": 2905,
+      "point_code": "3.3.3",
+      "routing_context": 3
+    }
+  ],
+  "map_allowed_tuples": [
+    {
+      "peer_id": "lab-map",
+      "direction": "inbound",
+      "operation": "lab-operation",
+      "application_context": "lab-context",
+      "destination_alias": "test-destination"
+    }
+  ],
+  "rate_limit_per_peer_operation_60s": 2
+}

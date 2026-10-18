@@ -9,6 +9,12 @@ The four native daemons carry BSSAP over SCCP/M3UA and GSUP, not a MAP test serv
 MAP scenarios require a separately approved MAP endpoint/firewall or sanitized offline
 records. Their screening and operation restrictions remain explicit integration TODOs.
 
+## Start on Kali
+
+Follow [the step-by-step walkthrough](docs/kali-next-steps.md). First run
+`bash scripts/check.sh`, then the two synthetic offline examples.
+The detector requires only Python 3; no telecom packages are needed for those steps.
+
 ## Review
 
 1. Read [authorization](docs/authorization.md) and [architecture](docs/architecture.md).
@@ -30,8 +36,11 @@ Config syntax is grounded in the linked official manuals and VTY references; the
 versions are documentation baselines, not claims about installed software or a tested
 compatibility matrix. Runtime parsing, interoperation and enforcement need lab verification.
 
-[Detection specifications](detection/rules/map-anomalies.yaml) are engine-neutral
-review material, not executable Sigma/Suricata rules. Use the
+[Detection specifications](detection/rules/map-anomalies.yaml) describe the broader
+design. The [offline detector](docs/offline-detector.md) now implements SIG-01,
+SIG-02, MAP-01 and MAP-03 against normalized JSON records; MAP-02 and direct PCAP
+decoding remain unimplemented. It produces an integrity manifest and never blocks
+traffic. Synthetic fixtures and 20 automated tests are included. Use the
 [report](docs/report-template.md) and [finding](findings/F-01-template.md) templates
 without treating expected outcomes as observed results.
 

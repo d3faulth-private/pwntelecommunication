@@ -1,8 +1,10 @@
 # Engine-neutral detection specification, NOT executable firewall/Sigma rules.
 # Local rule IDs are not GSMA control IDs. No packet payloads or replay logic.
 schema_version: 1
-status: design_only
-execution_engine: null
+status: design_with_partial_offline_implementation
+execution_engine: "See detection/analyze.py and docs/offline-detector.md; YAML is not loaded by the engine."
+implemented_rules: [SIG-01, SIG-02, MAP-01, MAP-03]
+unsupported_rules: [MAP-02]
 references:
   protocol: https://www.3gpp.org/ftp/Specs/archive/29_series/29.002/
   security: https://www.gsma.com/solutions-and-impact/technologies/security/cybersecurity-knowledge-base/interworking-security/
