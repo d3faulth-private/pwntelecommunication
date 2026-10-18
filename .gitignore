@@ -1,0 +1,16 @@
+# Evidence and subscriber credentials must never enter version control.
+*.pcap
+*.pcapng
+*.cap
+*.key
+secrets/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.log
+.env
+runtime/
+__pycache__/
+captures/*
+!captures/.gitkeep
