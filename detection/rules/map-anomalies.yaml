@@ -1,0 +1,81 @@
+# Engine-neutral detection specification, NOT executable firewall/Sigma rules.
+# Local rule IDs are not GSMA control IDs. No packet payloads or replay logic.
+schema_version: 1
+status: design_only
+execution_engine: null
+references:
+  protocol: https://www.3gpp.org/ftp/Specs/archive/29_series/29.002/
+  security: https://www.gsma.com/solutions-and-impact/technologies/security/cybersecurity-knowledge-base/interworking-security/
+  gsma_mapping: "FS.07 / FS.11 / FS.21 editions and clauses UNVERIFIED"
+normalization:
+  sources: [decoded_capture, stp_logs, external_firewall_audit, approved_inventory]
+  required_common: [timestamp_utc, sensor_id, event_id, scenario_id, protocol, peer_id, direction]
+  required_map: [dialogue_id, component_type, operation, application_context, destination_alias]
+  privacy: "Pseudonymize before export; never emit IMSI, Ki, MSISDN or raw payloads."
+  missing_fields: "Emit DATA-QUALITY; verdict INCONCLUSIVE, never a silent allow."
+  duplicate_handling: "Deduplicate SCTP retransmissions and duplicate sensor records before counting."
+  dialogue_key: "sensor_id + association_id + peer_pair + mapped_originating_transaction_id"
+  dialogue_note: "Correlate both TCAP transaction IDs and direction; expire closed/aborted dialogues."
+policy:
+  approved_peers:
+    - {id: lab-bsc, ip: 127.0.0.4, source_port: 2905, point_code: 1.1.1, routing_context: 1}
+    - {id: lab-msc, ip: 127.0.0.3, source_port: 2905, point_code: 3.3.3, routing_context: 3}
+  map_allowed_tuples: []
+  map_policy_status: "UNCONFIGURED: sponsor must approve peer/direction/operation/context/destination tuples."
+  rate_limit_per_peer_operation_60s: null
+  threshold_status: "UNCONFIGURED: calibrate with approved good traffic; do not guess a production threshold."
+  native_topology_map_expected: false
+rules:
+  - id: SIG-01
+    title: Unapproved ASP association
+    inputs: [association_attempt, association_result, approved_inventory]
+    condition: "Observed remote IP/source port is absent from approved_peers."
+    severity: high
+    evidence: [timestamp_utc, peer_id, source_ip, source_port, admission_result]
+    expected_baseline: "May be admitted by dynamic-permitted; log actual result."
+    expected_hardened: "Rejected by pre-configured admission; known peers still connect."
+    caveat: "IP/port matching is not cryptographic identity. Capture script excludes unknown peers; use STP logs."
+  - id: SIG-02
+    title: Unexpected route registration or ownership
+    inputs: [stp_registration_log, effective_route_snapshot, approved_inventory]
+    condition: "Requested or installed point-code/routing-context/peer tuple differs from approved inventory."
+    severity: high
+    evidence: [timestamp_utc, peer_id, requested_point_code, routing_context, registration_result, route_snapshot_hash]
+    expected_hardened: "No unauthorized AS/route added; inspect effective state after a clean restart."
+  - id: MAP-01
+    title: MAP operation outside approved context
+    inputs: [normalized_map_invoke, external_firewall_audit, approved_operation_matrix]
+    condition: "Invoke tuple (peer, direction, operation, application_context, destination_alias) is not allowlisted."
+    severity: high
+    prerequisites: "MAP endpoint/telemetry and approved nonempty policy; otherwise BLOCKED."
+    expected_hardened: "External firewall denial correlated to dialogue; no delivery downstream."
+    caveat: "No native Osmocom MAP opcode restriction is installed by this repository."
+  - id: MAP-02
+    title: Inconsistent MAP dialogue context
+    inputs: [normalized_tcap_dialogue, normalized_map_component]
+    condition: "Operation incompatible with negotiated context, or result has no matching outstanding invoke in the correlated dialogue."
+    severity: medium
+    prerequisites: "Full bidirectional capture, release-correct decoder, TCAP ID mapping and complete dialogue state."
+    false_positives: [midstream_capture, packet_loss, transaction_id_reuse, unsupported_decoder]
+    response: "Investigate; external policy determines rejection. Never claim enforcement from this alert."
+  - id: MAP-03
+    title: MAP rate exceeds approved lab envelope
+    inputs: [deduplicated_map_invokes, approved_rate_policy]
+    group_by: [peer_id, operation]
+    window_seconds: 60
+    condition: "Count exceeds configured rate_limit_per_peer_operation_60s; null disables evaluation and yields BLOCKED."
+    severity: medium
+    false_positives: [startup_burst, approved_batch, retransmission_counting]
+    response: "Alert and correlate with approved activity; no automatic blocking is implemented."
+validation_cases:
+  - {case: approved_peer_tuple, rule: SIG-01, expected: no_alert}
+  - {case: unapproved_peer_log_record, rule: SIG-01, expected: alert}
+  - {case: mismatched_route_owner, rule: SIG-02, expected: alert}
+  - {case: approved_map_tuple_with_complete_policy, rule: MAP-01, expected: no_alert}
+  - {case: unapproved_map_tuple_with_complete_policy, rule: MAP-01, expected: alert}
+  - {case: empty_map_policy, rule: MAP-01, expected: blocked}
+  - {case: orphan_result_in_complete_dialogue, rule: MAP-02, expected: alert}
+  - {case: midstream_dialogue, rule: MAP-02, expected: inconclusive}
+  - {case: null_rate_threshold, rule: MAP-03, expected: blocked}
+  - {case: duplicate_retransmission, rule: MAP-03, expected: count_once}
+  - {case: missing_required_field, rule: all, expected: data_quality_inconclusive}
