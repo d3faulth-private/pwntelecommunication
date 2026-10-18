@@ -13,8 +13,9 @@
 5. Capture baseline observations; restore a clean snapshot and restart with hardened
    copies. Repeat identical approved stimuli and positive controls. Check rejection at
    the enforcing component and absence downstream; an alert alone is not blocking proof.
-6. Hash evidence, record gaps and complete the report. No runtime test has been performed
-   by this scaffold. Never label missing traffic as proof of successful screening.
+6. Hash evidence, record gaps and complete the report. Local retained evidence verifies startup/connectivity and peer-admission behavior
+   as recorded in [F-01](../findings/F-01-peer-admission.md); other controls remain
+   pending. Never label missing traffic as proof of successful screening.
 
 ## Demonstrations (no payload generation)
 

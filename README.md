@@ -9,6 +9,13 @@ The four native daemons carry BSSAP over SCCP/M3UA and GSUP, not a MAP test serv
 MAP scenarios require a separately approved MAP endpoint/firewall or sanitized offline
 records. Their screening and operation restrictions remain explicit integration TODOs.
 
+Local evidence now verifies four-component startup, configured-peer M3UA activation
+and BSSMAP Reset/Acknowledge, plus baseline dynamic ASP creation and hardened
+unconfigured-peer rejection. See [the sanitized D-01 finding](findings/F-01-peer-admission.md)
+for evidence and limits. Unauthorized signalling delivery was not demonstrated;
+subscriber authentication and routing-key restrictions remain untested. Historical
+namespace containment is not independently proven by the retained service logs.
+
 ## Start on Kali
 
 Follow [the step-by-step walkthrough](docs/kali-next-steps.md). First run

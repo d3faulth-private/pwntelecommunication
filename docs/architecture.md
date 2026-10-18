@@ -86,14 +86,17 @@ OsmoSTP 2.1.0-3+b1 rejected ASP `no shutdown` during the first isolated startup
 check. Both STP profiles now omit this directive. The
 [2.1.0 VTY reference](https://downloads.osmocom.org/docs/osmo-stp/2.1.0/osmostp-vty-reference.pdf)
 does not list it in config-cs7-asp. This fixes the observed parser error only;
-startup, effective ASP state and connectivity still require a repeat test.
-MSC/BSC compatibility has not yet been runtime-validated. Offline tests do not
+later retained evidence verifies startup, configured-peer activation and BSSMAP
+connectivity; see [F-01](../findings/F-01-peer-admission.md). Offline tests do not
 invoke Osmocom parsers and could not detect this version mismatch.
 
 MSC 1.13.0+dfsg1-2 also rejected ASP `no shutdown` in the user's isolated
 startup test. Both MSC profiles now omit it. Both BSC profiles receive the same
 compatibility correction: the official MSC and BSC 1.13.0 VTY references omit
-that command (links in the configs). BSC correction is reference-based, not a
-claim of successful runtime testing. The user has now confirmed STP SCTP listening
-at 127.0.0.2:2905 and HLR GSUP listening at 127.0.0.5:4222 in the isolated namespace;
-MSC startup and end-to-end connectivity remain pending.
+that command (links in the configs). The initial BSC correction was reference-based; later retained logs and capture
+verify four-component operation, configured-peer M3UA activation and BSSMAP
+Reset/Acknowledge. This establishes signalling connectivity, not subscriber service.
+Historical namespace containment is not independently proven by these service logs.
+MSC also logged wildcard SMPP and SGs listeners; namespace isolation remains essential.
+MAP screening remains unimplemented; subscriber authentication and routing-key
+restrictions remain untested.

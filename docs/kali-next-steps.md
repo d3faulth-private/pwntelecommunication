@@ -81,7 +81,13 @@ apt-cache policy osmo-stp osmo-msc osmo-bsc osmo-hlr tshark wireshark-common
 Do not assume the pinned documentation versions are available in Kali repositories.
 Do not install/start system services just to make the inventory turn green.
 
-## 6. Live lab integration gates (pending)
+## 6. Live lab integration gates (partially verified)
+
+Existing evidence verifies startup, configured-peer signalling connectivity and the
+peer-admission comparison; see [F-01](../findings/F-01-peer-admission.md). These are
+retained observations, not proof of historical namespace containment or subscriber
+service. Subscriber authentication and routing-key restrictions remain untested;
+MAP screening remains unimplemented. The gates below still apply to future runs.
 
 After the inventory is reviewed:
 
