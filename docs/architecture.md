@@ -79,3 +79,13 @@ Documentation snapshots consulted (SHA-256 identifies the retrieved PDF, not bin
 Use these versioned documents for reproducibility. Record actual installed daemon and
 libosmo-sigtran versions, package origins and parser output in the private report;
 version compatibility is not established merely by citing a manual.
+
+## Kali runtime compatibility finding
+
+OsmoSTP 2.1.0-3+b1 rejected ASP `no shutdown` during the first isolated startup
+check. Both STP profiles now omit this directive. The
+[2.1.0 VTY reference](https://downloads.osmocom.org/docs/osmo-stp/2.1.0/osmostp-vty-reference.pdf)
+does not list it in config-cs7-asp. This fixes the observed parser error only;
+startup, effective ASP state and connectivity still require a repeat test.
+MSC/BSC compatibility has not yet been runtime-validated. Offline tests do not
+invoke Osmocom parsers and could not detect this version mismatch.
